@@ -1,0 +1,77 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: a639cd7c350a1340b9190b913b211da7ee914c9c9de09d97916911b2db8d15d5
+
+name:           netwarking
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/netwarking#readme>
+homepage:       https://github.com/githubuser/netwarking#readme
+bug-reports:    https://github.com/githubuser/netwarking/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2020 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/netwarking
+
+library
+  exposed-modules:
+      Common
+      Constants
+      Logic.Tick
+      Logic.Update
+      Server
+      Types.Action
+      Types.Common
+      Types.Response
+      Types.State
+  other-modules:
+      Paths_netwarking
+  hs-source-dirs:
+      src
+  ghc-options: -XNamedFieldPuns
+  build-depends:
+      base >=4.7 && <5
+    , containers
+  default-language: Haskell2010
+
+executable netwarking-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_netwarking
+  hs-source-dirs:
+      app
+  ghc-options: -XNamedFieldPuns -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , netwarking
+  default-language: Haskell2010
+
+test-suite netwarking-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      TestUtils
+      UpdateSpec
+      Paths_netwarking
+  hs-source-dirs:
+      test
+  ghc-options: -XNamedFieldPuns -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , hspec
+    , netwarking
+  default-language: Haskell2010
