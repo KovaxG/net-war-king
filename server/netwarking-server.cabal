@@ -4,31 +4,30 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a639cd7c350a1340b9190b913b211da7ee914c9c9de09d97916911b2db8d15d5
+-- hash: 115aeb231838a12df719958b11d0f62e252324b75c373b11ae294354c108efca
 
-name:           netwarking
+name:           netwarking-server
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/netwarking#readme>
-homepage:       https://github.com/githubuser/netwarking#readme
-bug-reports:    https://github.com/githubuser/netwarking/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2020 Author name here
+homepage:       https://github.com/https://github.com/KovaxG/net-war-king#readme
+bug-reports:    https://github.com/https://github.com/KovaxG/net-war-king/issues
+author:         Kovács György
+maintainer:     georgesmth202@gmail.com
+copyright:      2020 Kovács György
 license:        BSD3
-license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
-    ChangeLog.md
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/netwarking
+  location: https://github.com/https://github.com/KovaxG/net-war-king
 
 library
   exposed-modules:
       Common
       Constants
+      Lib
       Logic.Tick
       Logic.Update
       Server
@@ -37,35 +36,37 @@ library
       Types.Response
       Types.State
   other-modules:
-      Paths_netwarking
+      Paths_netwarking_server
   hs-source-dirs:
       src
   ghc-options: -XNamedFieldPuns
   build-depends:
       base >=4.7 && <5
     , containers
+    , network-simple
   default-language: Haskell2010
 
-executable netwarking-exe
+executable netwarking-server-exe
   main-is: Main.hs
   other-modules:
-      Paths_netwarking
+      Paths_netwarking_server
   hs-source-dirs:
       app
   ghc-options: -XNamedFieldPuns -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
     , containers
-    , netwarking
+    , netwarking-server
+    , network-simple
   default-language: Haskell2010
 
-test-suite netwarking-test
+test-suite netwarking-server-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
       TestUtils
       UpdateSpec
-      Paths_netwarking
+      Paths_netwarking_server
   hs-source-dirs:
       test
   ghc-options: -XNamedFieldPuns -threaded -rtsopts -with-rtsopts=-N
@@ -73,5 +74,6 @@ test-suite netwarking-test
       base >=4.7 && <5
     , containers
     , hspec
-    , netwarking
+    , netwarking-server
+    , network-simple
   default-language: Haskell2010

@@ -1,0 +1,66 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: b55f800ceea259cf6b2000e0527616aaa9ca812e878fd4f94c706018610e9997
+
+name:           netwarking-client
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/client#readme>
+homepage:       https://github.com/https://github.com/KovaxG/net-war-king#readme
+bug-reports:    https://github.com/https://github.com/KovaxG/net-war-king/issues
+author:         Kovács György
+maintainer:     georgesmth202@gmail.com
+copyright:      2020 Kovács György
+license:        BSD3
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/https://github.com/KovaxG/net-war-king
+
+library
+  exposed-modules:
+      Lib
+  other-modules:
+      Paths_netwarking_client
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , network-simple
+  default-language: Haskell2010
+
+executable netwarking-client-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_netwarking_client
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , netwarking-client
+    , network-simple
+  default-language: Haskell2010
+
+test-suite netwarking-client-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_netwarking_client
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , netwarking-client
+    , network-simple
+  default-language: Haskell2010

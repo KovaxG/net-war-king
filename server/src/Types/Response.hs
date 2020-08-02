@@ -20,8 +20,8 @@ data Info = Info [PlayerClientData] deriving (Show, Eq)
 data PlayerClientData = PlayerClientData PlayerName Coord deriving (Show, Eq)
 
 toClientData :: PlayerName -> PlayerData -> Map PlayerName PlayerData -> [PlayerClientData]
-toClientData name0 (PlayerData _ p0) players =
+toClientData name0 (PlayerData p0) players =
   players
   & Map.toList
-  & filter (\(name, PlayerData _ p) -> manDist p0 p < defaultViewDistance && name /= name0)
-  & fmap (\(name, PlayerData _ p) -> PlayerClientData name (relativeTo p0 p))
+  & filter (\(name, PlayerData p) -> manDist p0 p < defaultViewDistance && name /= name0)
+  & fmap (\(name, PlayerData p) -> PlayerClientData name (relativeTo p0 p))

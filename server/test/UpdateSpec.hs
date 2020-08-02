@@ -23,7 +23,7 @@ spec = do
       let (newState, response) = update action state
 
       sequence_
-        [ newState === State (Map.fromList [name --> PlayerData defaultSpeed initialSpawn])
+        [ newState === State (Map.fromList [name --> PlayerData initialSpawn])
         , response === Welcome (Info [])
         ]
 
@@ -31,11 +31,11 @@ spec = do
       let name = "Kovax"
       let position = (42,42)
       let action = Join name
-      let state = State (Map.fromList [name --> PlayerData defaultSpeed position])
+      let state = State (Map.fromList [name --> PlayerData position])
       let (newState, response) = update action state
 
       sequence_
-        [ newState === State (Map.fromList [name --> PlayerData defaultSpeed position])
+        [ newState === State (Map.fromList [name --> PlayerData position])
         , response === Welcome (Info [])
         ]
 
@@ -52,11 +52,11 @@ spec = do
     it "moving a player should have the desired effect" $ do
       let name = "Kovax"
       let action = Move name East
-      let state = State (Map.fromList [name --> PlayerData defaultSpeed (42,42)])
+      let state = State (Map.fromList [name --> PlayerData (42,42)])
       let (newState, response) = update action state
 
       sequence_
-        [ newState === State (Map.fromList [name --> PlayerData defaultSpeed (42 + defaultSpeed,42)])
+        [ newState === State (Map.fromList [name --> PlayerData (42 + playerSpeed,42)])
         , response === Moved (Info [])
         ]
 
@@ -64,11 +64,11 @@ spec = do
       let newPlayer = "Kovax"
       let oldPlayer = "Loosner"
       let action = Join newPlayer
-      let state = State (Map.fromList [oldPlayer --> PlayerData defaultSpeed (4,4)])
+      let state = State (Map.fromList [oldPlayer --> PlayerData (4,4)])
       let (newState, response) = update action state
 
       sequence_
-        [ newState === State (Map.fromList [ newPlayer --> PlayerData defaultSpeed (0,0)
-                                           , oldPlayer --> PlayerData defaultSpeed (4,4)])
+        [ newState === State (Map.fromList [ newPlayer --> PlayerData (0,0)
+                                           , oldPlayer --> PlayerData (4,4)])
         , response === Welcome (Info [PlayerClientData "Loosner" (4,4)])
         ]

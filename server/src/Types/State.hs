@@ -7,4 +7,4 @@ import Types.Common
 
 data State = State (Map PlayerName PlayerData) deriving (Show, Eq)
 
-data PlayerData = PlayerData Speed Coord deriving (Show, Eq)
+data PlayerData = PlayerData Coord deriving (Show, Eq)

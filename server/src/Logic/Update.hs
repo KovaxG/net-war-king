@@ -26,7 +26,7 @@ joining name state@(State players) =
     --> Welcome (Info $ toClientData name newPlayerData players)
     )
   where
-    newPlayerData = PlayerData defaultSpeed initialSpawn
+    newPlayerData = PlayerData initialSpawn
 
 moving :: PlayerName -> Direction -> State -> (State, Response)
 moving name dir state@(State players) =
@@ -38,10 +38,9 @@ moving name dir state@(State players) =
   & fromMaybe (state --> NonExistentPlayer)
 
 move :: Direction -> PlayerData -> PlayerData
-move dir (PlayerData speed (x,y)) =
-  PlayerData speed
-  $ case dir of
-    North -> (x, y-speed)
-    South -> (x, y+speed)
-    East -> (x+speed, y)
-    West -> (x-speed, y)
+move dir (PlayerData (x,y)) =
+  PlayerData $ case dir of
+    North -> (x, y-playerSpeed)
+    South -> (x, y+playerSpeed)
+    East -> (x+playerSpeed, y)
+    West -> (x-playerSpeed, y)

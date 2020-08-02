@@ -1,14 +1,13 @@
-name:                netwarking
+name:                netwarking-server
 version:             0.1.0.0
-github:              "githubuser/netwarking"
+github:              "https://github.com/KovaxG/net-war-king"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2020 Author name here"
+author:              "Kovács György"
+maintainer:          "georgesmth202@gmail.com"
+copyright:           "2020 Kovács György"
 
 extra-source-files:
 - README.md
-- ChangeLog.md
 
 # synopsis:            Short description of your package
 # category:            Web
@@ -19,12 +18,13 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.7 && < 5
 - containers
+- network-simple
 
 library:
   source-dirs: src
 
 executables:
-  netwarking-exe:
+  netwarking-server-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -32,10 +32,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - netwarking
+    - netwarking-server
 
 tests:
-  netwarking-test:
+  netwarking-server-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -43,7 +43,7 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - netwarking
+    - netwarking-server
     - hspec
 
 ghc-options:

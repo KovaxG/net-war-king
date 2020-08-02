@@ -1,0 +1,46 @@
+name:                netwarking-client
+version:             0.1.0.0
+github:              "https://github.com/KovaxG/net-war-king"
+license:             BSD3
+author:              "Kovács György"
+maintainer:          "georgesmth202@gmail.com"
+copyright:           "2020 Kovács György"
+
+extra-source-files:
+- README.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+description:         Please see the README on GitHub at <https://github.com/githubuser/client#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- network-simple
+- bytestring
+
+library:
+  source-dirs: src
+
+executables:
+  netwarking-client-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - netwarking-client
+
+tests:
+  netwarking-client-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - netwarking-client
