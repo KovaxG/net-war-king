@@ -2,6 +2,8 @@ module Server where
 
 import           Prelude hiding (log)
 import qualified Data.ByteString.Char8 as ByteString
+import           Data.Map (Map)
+import qualified Data.Map as Map
 import qualified Control.Exception as Exception
 import           Control.Concurrent.MVar (MVar)
 import qualified Control.Concurrent.MVar as MVar
@@ -9,42 +11,42 @@ import           Network.Simple.TCP (Socket, SockAddr)
 import qualified Network.Simple.TCP as Network
 
 import Logic.Update
+import Types.Common
 import Types.Action
+import Types.Response
 import Types.State
 import Utils
-
-initialState = State 0
 
 runServer :: IO ()
 runServer = do
   log "Starting Server"
   stateMVar <- MVar.newMVar initialState
+  sessionMap <- MVar.newMVar Map.empty
   Network.serve (Network.Host "localhost") "8000" $ \(connectionSocket, remoteAddr) -> do
-    log $ "TCP connection established from " ++ show remoteAddr ++ "."
+    let sessionID = show remoteAddr
+    log $ "TCP connection established from " ++ sessionID ++ "."
     Exception.finally
-      (process connectionSocket stateMVar)
-      (log $ show remoteAddr ++ " disconnected.")
+      (process connectionSocket sessionID stateMVar sessionMap)
+      (do
+        mutateState sessionID stateMVar Logout
+        log $ sessionID ++ " disconnected."
+      )
 
-process :: Socket -> MVar State -> IO ()
-process socket stateMVar =
+process :: Socket -> SessionID -> MVar State -> MVar (Map SockAddr PlayerName) -> IO ()
+process socket sessionID stateMVar sessionMap =
   listen socket >>= maybe disconnected (\message -> do
-    messageReceived socket stateMVar message
-    process socket stateMVar
+    messageReceived socket sessionID stateMVar message
+    process socket sessionID stateMVar sessionMap
   )
 
 disconnected :: IO ()
 disconnected = log "Got empty message"
 
-messageReceived :: Socket -> MVar State -> String -> IO ()
-messageReceived socket stateMVar message = do
-  response <- case safeRead message of
-    Just action -> do
-      state <- MVar.takeMVar stateMVar
-      let state' = update action state
-      MVar.putMVar stateMVar state'
-      return $ show state'
+messageReceived :: Socket -> SessionID -> MVar State -> String -> IO ()
+messageReceived socket sessionID stateMVar message =
+  send socket =<< case actionParser message of
     Nothing -> return "Unrecognized"
-  send socket response
+    Just action -> show <$> mutateState sessionID stateMVar action
 
 listen :: Socket -> IO (Maybe String)
 listen = fmap (fmap ByteString.unpack) . flip Network.recv 1024
@@ -54,3 +56,11 @@ send sock = Network.send sock . ByteString.pack
 
 log :: String -> IO ()
 log = putStrLn
+
+mutateState :: SessionID -> MVar State -> Action -> IO Response
+mutateState sessionID stateMVar action = do
+  state <- MVar.takeMVar stateMVar
+  let (state', response) = update sessionID action state
+  log $ show state'
+  MVar.putMVar stateMVar state'
+  return response
