@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b55f800ceea259cf6b2000e0527616aaa9ca812e878fd4f94c706018610e9997
+-- hash: 3996983c677c0e83bf8240932f1534c456ad6534d07650ac46b0bb5e9f20d2f8
 
 name:           netwarking-client
 version:        0.1.0.0
@@ -25,7 +25,7 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Client
   other-modules:
       Paths_netwarking_client
   hs-source-dirs:

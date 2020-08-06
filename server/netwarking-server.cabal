@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 115aeb231838a12df719958b11d0f62e252324b75c373b11ae294354c108efca
+-- hash: cf1987c122f79d7dc2d17615df4e9fc998f6979469910973be97e40f376a8bcf
 
 name:           netwarking-server
 version:        0.1.0.0
@@ -28,13 +28,13 @@ library
       Common
       Constants
       Lib
-      Logic.Tick
       Logic.Update
       Server
       Types.Action
       Types.Common
       Types.Response
       Types.State
+      Utils
   other-modules:
       Paths_netwarking_server
   hs-source-dirs:
@@ -42,6 +42,7 @@ library
   ghc-options: -XNamedFieldPuns
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , containers
     , network-simple
   default-language: Haskell2010
@@ -55,6 +56,7 @@ executable netwarking-server-exe
   ghc-options: -XNamedFieldPuns -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , containers
     , netwarking-server
     , network-simple
@@ -72,6 +74,7 @@ test-suite netwarking-server-test
   ghc-options: -XNamedFieldPuns -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , containers
     , hspec
     , netwarking-server
