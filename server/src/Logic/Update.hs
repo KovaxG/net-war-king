@@ -20,7 +20,8 @@ update sessionID action state =
       case action of
         Logout ->
           ( state { session = Map.delete sessionID (state & session) }
-          , Disconnected)
+          , Disconnected
+          )
         Login user pass ->
           case (state & session) !? sessionID of
             Just _ -> (state, SessionAlreadyLoggedIn)

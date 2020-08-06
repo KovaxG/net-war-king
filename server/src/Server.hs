@@ -21,22 +21,21 @@ runServer :: IO ()
 runServer = do
   log "Starting Server"
   stateMVar <- MVar.newMVar initialState
-  sessionMap <- MVar.newMVar Map.empty
   Network.serve (Network.Host "localhost") "8000" $ \(connectionSocket, remoteAddr) -> do
     let sessionID = show remoteAddr
     log $ "TCP connection established from " ++ sessionID ++ "."
     Exception.finally
-      (process connectionSocket sessionID stateMVar sessionMap)
+      (process connectionSocket sessionID stateMVar)
       (do
         mutateState sessionID stateMVar Logout
         log $ sessionID ++ " disconnected."
       )
 
-process :: Socket -> SessionID -> MVar State -> MVar (Map SockAddr PlayerName) -> IO ()
-process socket sessionID stateMVar sessionMap =
+process :: Socket -> SessionID -> MVar State -> IO ()
+process socket sessionID stateMVar =
   listen socket >>= maybe disconnected (\message -> do
     messageReceived socket sessionID stateMVar message
-    process socket sessionID stateMVar sessionMap
+    process socket sessionID stateMVar
   )
 
 disconnected :: IO ()
