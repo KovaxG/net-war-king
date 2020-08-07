@@ -22,25 +22,27 @@ update sessionID action state =
         Logout -> removeSession sessionID state
         Login user pass ->
           loginFlow sessionID user pass state (joinServerAndAddSession user pass sessionID state)
+        SetReady ready -> (state, NotImplemented)
 
     Game ->
       case action of
         Logout -> removeSession sessionID state
         Login user pass ->
           loginFlow sessionID user pass state (userNotPartOfServer state)
+        SetReady _ -> illegal state
 
 loginFlow :: SessionID -> PlayerName -> Password -> State -> (State, Response) -> (State, Response)
 loginFlow sessionID user pass state newUserFlow =
-  if Map.member sessionID (state & sessions)
+  if Just sessionID ∈ Map.map session (state & players)
   then sessionAlreadyInUse state
   else
-    if user ∈ (state & sessions)
-    then userAlreadyLoggedIn state
-    else
-      case (state & players) !? user of
-        Nothing -> newUserFlow
-        Just actualPass ->
-          if actualPass == pass
+    case (state & players) !? user of
+      Nothing -> newUserFlow
+      Just playerData ->
+        if Maybe.isJust (playerData & session)
+        then userAlreadyLoggedIn state
+        else
+          if (playerData & password) == pass
           then addSession user sessionID state
           else badPassword state
 
@@ -49,17 +51,21 @@ badPassword state = (state, BadPassword)
 
 addSession :: PlayerName -> SessionID -> State -> (State, Response)
 addSession user sessionID state =
-  ( state { sessions = Map.insert sessionID user (state & sessions) }
+  ( state { players = Map.adjust (\pd -> pd { session = Just sessionID }) user (state & players) }
   , LoginSuccess
   )
 
 joinServerAndAddSession :: PlayerName -> Password -> SessionID -> State -> (State, Response)
 joinServerAndAddSession user pass sessionID state =
-  ( state { players = Map.insert user pass (state & players)
-          , sessions = Map.insert sessionID user (state & sessions)
-          }
+  ( state { players = Map.insert user playerData (state & players) }
   , LobbyJoinSuccess
   )
+  where
+    playerData = PlayerData
+      { password = pass
+      , ready = False
+      , session = Just sessionID
+      }
 
 userAlreadyLoggedIn :: State -> (State, Response)
 userAlreadyLoggedIn state = (state, LoggedInFromDifferentSession)
@@ -69,9 +75,19 @@ sessionAlreadyInUse state = (state, SessionAlreadyLoggedIn)
 
 removeSession :: SessionID -> State -> (State, Response)
 removeSession sessionID state =
-  ( state { sessions = Map.delete sessionID (state & sessions) }
+  ( state {
+      players =
+        Map.map (\pd ->
+          if (pd & session) == Just sessionID
+          then pd { session = Nothing }
+          else pd
+        ) (state & players)
+    }
   , Disconnected
   )
 
 userNotPartOfServer :: State -> (State, Response)
 userNotPartOfServer state = (state, NotPartOfServer)
+
+illegal :: State -> (State, Response)
+illegal state = (state, Illegal)
