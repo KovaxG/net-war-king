@@ -2,7 +2,7 @@ module Logic.Update (update) where
 
 import           Data.Function ((&))
 import qualified Data.List as List
-import           Data.Foldable.Unicode ((∈))
+import           Data.Foldable.Unicode ((∈), (∉))
 import qualified Data.Maybe as Maybe
 import           Data.Map (Map, (!?))
 import qualified Data.Map as Map
@@ -13,6 +13,7 @@ import Types.Common
 import Types.Action
 import Types.Response
 import Types.State
+import Utils
 
 update :: SessionID -> Action -> State -> (State, Response)
 update sessionID action state =
@@ -22,7 +23,7 @@ update sessionID action state =
         Logout -> removeSession sessionID state
         Login user pass ->
           loginFlow sessionID user pass state (joinServerAndAddSession user pass sessionID state)
-        SetReady ready -> (state, NotImplemented)
+        SetReady ready -> setReady sessionID ready state
 
     Game ->
       case action of
@@ -77,11 +78,10 @@ removeSession :: SessionID -> State -> (State, Response)
 removeSession sessionID state =
   ( state {
       players =
-        Map.map (\pd ->
-          if (pd & session) == Just sessionID
-          then pd { session = Nothing }
-          else pd
-        ) (state & players)
+        mapIf
+          (\pd -> (pd & session) == Just sessionID)
+          (\pd -> pd { session = Nothing })
+          (state & players)
     }
   , Disconnected
   )
@@ -91,3 +91,18 @@ userNotPartOfServer state = (state, NotPartOfServer)
 
 illegal :: State -> (State, Response)
 illegal state = (state, Illegal)
+
+setReady :: SessionID -> Bool -> State -> (State, Response)
+setReady sessionID ready state =
+  if Just sessionID ∉ Map.map session (state & players)
+  then (state, UnattachedSession)
+  else
+    ( state {
+        players =
+          mapIf
+            (\pd -> (pd & session) == Just sessionID)
+            (\pd -> pd { ready })
+            (state & players)
+      }
+    , Ok
+    )

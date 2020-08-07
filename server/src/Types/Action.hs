@@ -14,6 +14,6 @@ actionParser :: String -> Maybe Action
 actionParser s = case fmap (fmap Char.toLower) $ words s of
   ["lo"] -> Just Logout
   ['l':_, player, password] -> Just $ Login player password
-  ["sr", "false"] -> Just $ SetReady True
-  ["sr", "true"] -> Just $ SetReady False
+  ["sr", "false"] -> Just $ SetReady False
+  ["sr", "true"] -> Just $ SetReady True
   _ -> Nothing

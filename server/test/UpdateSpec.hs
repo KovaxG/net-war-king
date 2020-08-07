@@ -1,9 +1,10 @@
 module UpdateSpec (spec) where
 
-import Data.Foldable
-import Data.Map (Map)
+import           Data.Foldable
+import           Data.Map (Map)
 import qualified Data.Map as Map
-import Test.Hspec
+import           Test.Hspec (Spec)
+import qualified Test.Hspec as Test
 
 import Common
 import Constants
@@ -15,60 +16,275 @@ import Types.State
 
 spec :: Spec
 spec = do
-  describe "update function" $ do
-    it "a new player joining is added to the state" $ do
+  Test.describe "update function" $ do
+    Test.it "a new player joining the lobby" $ do
       let name = "Kovax"
-      let action = Join name
-      let state = State Map.empty
-      let (newState, response) = update action state
+      let pass = "pass"
+      let action = Login name pass
+
+      let session = "session_1"
+      let state = State
+            { mode = Lobby
+            , players = Map.empty
+            }
+      let (newState, response) = update session action state
 
       sequence_
-        [ newState === State (Map.fromList [name --> PlayerData initialSpawn])
-        , response === Welcome (Info [])
+        [ newState === State
+            { mode = Lobby
+            , players =
+                Map.fromList
+                  [ ( name
+                    , PlayerData
+                      { password = pass
+                      , ready = False
+                      , session = Just session
+                      }
+                    )
+                  ]
+            }
+        , response === LobbyJoinSuccess
         ]
 
-    it "an old player joining is not teleported" $ do
+    Test.it "a player logging out of the lobby" $ do
+      let action = Logout
+
       let name = "Kovax"
-      let position = (42,42)
-      let action = Join name
-      let state = State (Map.fromList [name --> PlayerData position])
-      let (newState, response) = update action state
+      let pass = "pass"
+      let session = "session_1"
+      let state = State
+            { mode = Lobby
+            , players = Map.fromList
+                [ ( name
+                  , PlayerData
+                    { password = pass
+                    , ready = False
+                    , session = Just session
+                    }
+                  )
+                ]
+            }
+      let (newState, response) = update session action state
 
       sequence_
-        [ newState === State (Map.fromList [name --> PlayerData position])
-        , response === Welcome (Info [])
+        [ newState === State
+            { mode = Lobby
+            , players =
+                Map.fromList
+                  [ ( name
+                    , PlayerData
+                      { password = pass
+                      , ready = False
+                      , session = Nothing
+                      }
+                    )
+                  ]
+            }
+        , response === Disconnected
         ]
 
-    it "moving a non existent player should have no effect" $ do
-      let state = State Map.empty
-      let action = Move "Kovax" East
-      let (newState, response) = update action state
-
-      sequence_
-        [ newState === State Map.empty
-        , response === NonExistentPlayer
-        ]
-
-    it "moving a player should have the desired effect" $ do
+    Test.it "trying to log into a player logged in on another session" $ do
       let name = "Kovax"
-      let action = Move name East
-      let state = State (Map.fromList [name --> PlayerData (42,42)])
-      let (newState, response) = update action state
+      let pass = "pass"
+      let action = Login name pass
+
+      let session1 = "session_1"
+      let session2 = "session_2"
+
+      let state = State
+              { mode = Lobby
+              , players = Map.fromList
+                  [ ( name
+                    , PlayerData
+                      { password = pass
+                      , ready = False
+                      , session = Just session1
+                      }
+                    )
+                  ]
+              }
+      let (newState, response) = update session2 action state
 
       sequence_
-        [ newState === State (Map.fromList [name --> PlayerData (42 + playerSpeed,42)])
-        , response === Moved (Info [])
+        [ newState === State
+            { mode = Lobby
+            , players =
+                Map.fromList
+                  [ ( name
+                    , PlayerData
+                      { password = pass
+                      , ready = False
+                      , session = Just session1
+                      }
+                    )
+                  ]
+            }
+        , response === LoggedInFromDifferentSession
         ]
 
-    it "spawning next to a player makes that player visible" $ do
-      let newPlayer = "Kovax"
-      let oldPlayer = "Loosner"
-      let action = Join newPlayer
-      let state = State (Map.fromList [oldPlayer --> PlayerData (4,4)])
-      let (newState, response) = update action state
+    Test.it "trying to log into two accounts from a single session" $ do
+      let name1 = "Kovax"
+      let pass1 = "pass"
+
+      let name2 = "Guri"
+      let pass2 = "passwort"
+
+      let action = Login name2 pass2
+
+      let session = "session_1"
+
+      let state = State
+              { mode = Lobby
+              , players = Map.fromList
+                  [ ( name1
+                    , PlayerData
+                      { password = pass1
+                      , ready = False
+                      , session = Just session
+                      }
+                    ),
+                    ( name2
+                    , PlayerData
+                      { password = pass2
+                      , ready = False
+                      , session = Nothing
+                      }
+                    )
+                  ]
+              }
+      let (newState, response) = update session action state
 
       sequence_
-        [ newState === State (Map.fromList [ newPlayer --> PlayerData (0,0)
-                                           , oldPlayer --> PlayerData (4,4)])
-        , response === Welcome (Info [PlayerClientData "Loosner" (4,4)])
+        [ newState === State
+            { mode = Lobby
+              , players = Map.fromList
+                  [ ( name1
+                    , PlayerData
+                      { password = pass1
+                      , ready = False
+                      , session = Just session
+                      }
+                    ),
+                    ( name2
+                    , PlayerData
+                      { password = pass2
+                      , ready = False
+                      , session = Nothing
+                      }
+                    )
+                  ]
+              }
+        , response === SessionAlreadyLoggedIn
+        ]
+
+    Test.it "trying to log into two accounts from a single session, while the other already has a running session" $ do
+      let name1 = "Kovax"
+      let pass1 = "pass"
+
+      let name2 = "Guri"
+      let pass2 = "passwort"
+
+      let action = Login name2 pass2
+
+      let session1 = "session_1"
+      let session2 = "session_2"
+
+      let state = State
+              { mode = Lobby
+              , players = Map.fromList
+                  [ ( name1
+                    , PlayerData
+                      { password = pass1
+                      , ready = False
+                      , session = Just session1
+                      }
+                    ),
+                    ( name2
+                    , PlayerData
+                      { password = pass2
+                      , ready = False
+                      , session = Just session2
+                      }
+                    )
+                  ]
+              }
+      let (newState, response) = update session1 action state
+
+      sequence_
+        [ newState === State
+            { mode = Lobby
+              , players = Map.fromList
+                  [ ( name1
+                    , PlayerData
+                      { password = pass1
+                      , ready = False
+                      , session = Just session1
+                      }
+                    ),
+                    ( name2
+                    , PlayerData
+                      { password = pass2
+                      , ready = False
+                      , session = Just session2
+                      }
+                    )
+                  ]
+              }
+        , response === SessionAlreadyLoggedIn
+        ]
+
+    Test.it "setting readyness" $ do
+      let name1 = "Kovax"
+      let pass1 = "pass"
+
+      let name2 = "Guri"
+      let pass2 = "passwort"
+
+      let action = SetReady True
+
+      let session1 = "session_1"
+      let session2 = "session_2"
+
+      let state = State
+              { mode = Lobby
+              , players = Map.fromList
+                  [ ( name1
+                    , PlayerData
+                      { password = pass1
+                      , ready = False
+                      , session = Just session1
+                      }
+                    ),
+                    ( name2
+                    , PlayerData
+                      { password = pass2
+                      , ready = False
+                      , session = Just session2
+                      }
+                    )
+                  ]
+              }
+      let (newState, response) = update session1 action state
+
+      sequence_
+        [ newState === State
+            { mode = Lobby
+              , players = Map.fromList
+                  [ ( name1
+                    , PlayerData
+                      { password = pass1
+                      , ready = True
+                      , session = Just session1
+                      }
+                    ),
+                    ( name2
+                    , PlayerData
+                      { password = pass2
+                      , ready = False
+                      , session = Just session2
+                      }
+                    )
+                  ]
+              }
+        , response === Ok
         ]

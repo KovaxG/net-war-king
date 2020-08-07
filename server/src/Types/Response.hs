@@ -17,4 +17,6 @@ data Response
   | BadPassword
   | Disconnected
   | NotPartOfServer
+  | Ok
+  | UnattachedSession
   deriving (Show, Eq)
