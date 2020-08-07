@@ -2,7 +2,7 @@ module Logic.Update (update) where
 
 import Data.Function ((&))
 import qualified Data.List as List
-import           Data.List.Unicode ((∈))
+import           Data.Foldable.Unicode ((∈))
 import qualified Data.Maybe as Maybe
 import           Data.Map (Map, (!?))
 import qualified Data.Map as Map
@@ -24,7 +24,7 @@ update sessionID action state =
           if Map.member sessionID (state & session)
           then sessionAlreadyInUse state
           else
-            if user ∈ Map.elems (state & session)
+            if user ∈ (state & session)
             then userAlreadyLoggedIn state
             else
               case (state & players) !? user of
