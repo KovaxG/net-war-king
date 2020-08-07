@@ -10,7 +10,7 @@ import Types.Common
 data State = State
   { mode :: GameMode
   , players :: Map PlayerName Password
-  , session :: Map SessionID PlayerName
+  , sessions :: Map SessionID PlayerName
   } deriving (Show, Eq)
 
 data GameMode = Lobby | Game deriving (Show, Eq)
@@ -21,7 +21,7 @@ initialState :: State
 initialState = State
   { mode = Lobby
   , players = Map.empty
-  , session = Map.empty
+  , sessions = Map.empty
   }
 
 isLobby :: State -> Bool

@@ -16,4 +16,5 @@ data Response
   | LoginSuccess
   | BadPassword
   | Disconnected
+  | NotPartOfServer
   deriving (Show, Eq)
