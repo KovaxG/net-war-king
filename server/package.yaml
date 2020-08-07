@@ -20,6 +20,7 @@ dependencies:
 - containers
 - network-simple
 - bytestring
+- base-unicode-symbols
 
 library:
   source-dirs: src

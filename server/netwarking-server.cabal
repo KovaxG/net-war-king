@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cf1987c122f79d7dc2d17615df4e9fc998f6979469910973be97e40f376a8bcf
+-- hash: d4f1d4408e8cd73cb82a1ac0530d9c08c7d2cb446bcde79b1e13ce37db0c619f
 
 name:           netwarking-server
 version:        0.1.0.0
@@ -42,6 +42,7 @@ library
   ghc-options: -XNamedFieldPuns
   build-depends:
       base >=4.7 && <5
+    , base-unicode-symbols
     , bytestring
     , containers
     , network-simple
@@ -56,6 +57,7 @@ executable netwarking-server-exe
   ghc-options: -XNamedFieldPuns -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , base-unicode-symbols
     , bytestring
     , containers
     , netwarking-server
@@ -74,6 +76,7 @@ test-suite netwarking-server-test
   ghc-options: -XNamedFieldPuns -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , base-unicode-symbols
     , bytestring
     , containers
     , hspec
